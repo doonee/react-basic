@@ -1,24 +1,24 @@
-import "bootstrap/dist/css/bootstrap.min.css";
-import { useState } from "react";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import routes from "./routes";
+import Navbar from "./components/NavBar";
 
 function App() {
-  const [title, setTitle] = useState("");
-
   return (
-    <div className="container">
-      <div className="mb-3">
-        <label htmlFor="" className="form-label">
-          Title
-        </label>
-        <input
-          type="text"
-          className="form-control"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
+    <Router>
+      <Navbar />
+      <div className="container mt-3">
+        <Switch>
+          {routes.map((route, index) => (
+            <Route
+              key={index}
+              path={route.path}
+              exact
+              component={route.component}
+            />
+          ))}
+        </Switch>
       </div>
-      <button className="btn btn-primary">Post</button>
-    </div>
+    </Router>
   );
 }
 

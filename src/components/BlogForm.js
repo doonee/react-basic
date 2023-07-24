@@ -13,6 +13,8 @@ const BlogForm = ({ editing }) => {
   const [originalBody, setOriginalBody] = useState("");
   const [publish, setPublish] = useState(false);
   const [originalPublish, setOriginalPublish] = useState(false);
+  const [titleError, setTitleError] = useState(false);
+  const [bodyError, setBodyError] = useState(false);
 
   const isEdited = () => {
     return (
@@ -34,7 +36,24 @@ const BlogForm = ({ editing }) => {
     setPublish(e.target.checked);
   };
 
+  const validateForm = () => {
+    let titleError = false;
+    let bodyError = false;
+    if (title === "") {
+      titleError = true;
+    }
+    if (body === "") {
+      bodyError = true;
+    }
+    setTitleError(titleError);
+    setBodyError(bodyError);
+    return !titleError && !bodyError;
+  };
+
   const handleSubmit = () => {
+    if (!validateForm()) {
+      return;
+    }
     if (editing) {
       axios
         .put(`http://localhost:3001/posts/${id}`, {
@@ -81,21 +100,23 @@ const BlogForm = ({ editing }) => {
         </label>
         <input
           type="text"
-          className="form-control"
+          className={`form-control ${titleError && 'border-danger'}`}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
+        {titleError && <div className="text-danger">Title is isRequired.</div>}
       </div>
       <div className="mb-3">
         <label htmlFor="" className="form-label">
           Body
         </label>
         <textarea
-          className="form-control"
+          className={`form-control ${bodyError && 'border-danger'}`}
           rows="10"
           value={body}
           onChange={(e) => setBody(e.target.value)}
         />
+        {bodyError && <div className="text-danger">Body is isRequired.</div>}
       </div>
       <div className="form-check mb-3">
         <input

@@ -3,7 +3,7 @@ import propTypes from "prop-types";
 import { useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 
-const BlogForm = ({ editing }) => {
+const BlogForm = ({ editing, addToast }) => {
   const history = useHistory();
   const { id } = useParams();
 
@@ -73,6 +73,11 @@ const BlogForm = ({ editing }) => {
           createdAt: Date.now(),
         })
         .then((res) => {
+          const newToast = {
+            text: "Post created successfully.",
+            type: "success",
+          };
+          addToast(newToast);
           history.push("/admin");
         });
     }
@@ -100,7 +105,7 @@ const BlogForm = ({ editing }) => {
         </label>
         <input
           type="text"
-          className={`form-control ${titleError && 'border-danger'}`}
+          className={`form-control ${titleError && "border-danger"}`}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
@@ -111,7 +116,7 @@ const BlogForm = ({ editing }) => {
           Body
         </label>
         <textarea
-          className={`form-control ${bodyError && 'border-danger'}`}
+          className={`form-control ${bodyError && "border-danger"}`}
           rows="10"
           value={body}
           onChange={(e) => setBody(e.target.value)}
@@ -146,6 +151,7 @@ const BlogForm = ({ editing }) => {
 
 BlogForm.propTypes = {
   editing: propTypes.bool,
+  addToast: propTypes.func.isRequired,
 };
 
 BlogForm.defaultProps = {

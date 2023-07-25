@@ -7,7 +7,7 @@ import Card from "../components/Card";
 import LoadingSpinner from "../components/LoadingSpinner";
 import Pagination from "./Pagination";
 
-const BlogList = ({ isAdmin }) => {
+const BlogList = ({ isAdmin, addToast }) => {
   const location = useLocation();
   /* 
   {
@@ -23,7 +23,7 @@ const BlogList = ({ isAdmin }) => {
     "?page=1" => params.get("page") => 1
   */
   const history = useHistory();
-  const limit = 1;
+  const limit = 3;
 
   const [posts, setPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -75,8 +75,10 @@ const BlogList = ({ isAdmin }) => {
   const deleteBlog = (e, postId) => {
     e.stopPropagation();
     axios.delete(`http://localhost:3001/posts/${postId}`).then(() => {
-      setPosts((previousPosts) => previousPosts.filter((p) => p.id !== postId));
+      //   setPosts((previousPosts) => previousPosts.filter((p) => p.id !== postId));
+      getPosts(currentPage);
       setIsLoading(false);
+      addToast({ text: "Blog post deleted", type: "success" });
     });
   };
 
@@ -148,6 +150,7 @@ const BlogList = ({ isAdmin }) => {
 
 BlogList.propTypes = {
   isAdmin: propTypes.bool,
+  addToast: propTypes.func.isRequired,
 };
 
 BlogList.defaultProps = {

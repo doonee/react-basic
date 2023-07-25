@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import BlogList from "../components/BlogList";
 
-const AdminPage = ({ addToast }) => {
+const AdminPage = () => {
   return (
     <>
       <div className="d-flex justify-content-between">
@@ -12,7 +12,7 @@ const AdminPage = ({ addToast }) => {
           </Link>
         </div>
       </div>
-      <BlogList isAdmin={true} addToast={addToast} />
+      <BlogList isAdmin={true} />
     </>
   );
 };

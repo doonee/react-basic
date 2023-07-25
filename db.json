@@ -2,24 +2,10 @@
   "posts": [
     {
       "title": "1111",
-      "body": "1111",
-      "publish": true,
-      "createdAt": 1690243416359,
-      "id": 1
-    },
-    {
-      "title": "11",
-      "body": "22",
+      "body": "11",
       "publish": false,
-      "createdAt": 1690252530937,
-      "id": 42
-    },
-    {
-      "title": "44444",
-      "body": "ㅗㅗㅗ",
-      "publish": false,
-      "createdAt": 1690255252073,
-      "id": 44
+      "createdAt": 1690260254978,
+      "id": 3
     }
   ],
   "comments": [],

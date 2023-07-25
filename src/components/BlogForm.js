@@ -2,10 +2,12 @@ import axios from "axios";
 import propTypes from "prop-types";
 import { useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
+import useToast from '../hooks/useToast';
 
-const BlogForm = ({ editing, addToast }) => {
+const BlogForm = ({ editing }) => {
   const history = useHistory();
   const { id } = useParams();
+  const { addToast } = useToast();
 
   const [title, setTitle] = useState("");
   const [originalTitle, setOriginalTitle] = useState("");
@@ -151,7 +153,6 @@ const BlogForm = ({ editing, addToast }) => {
 
 BlogForm.propTypes = {
   editing: propTypes.bool,
-  addToast: propTypes.func.isRequired,
 };
 
 BlogForm.defaultProps = {

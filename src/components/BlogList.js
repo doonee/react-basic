@@ -1,13 +1,16 @@
 import axios from "axios";
 import propTypes from "prop-types";
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { useLocation } from "react-router-dom";
 import Card from "../components/Card";
 import LoadingSpinner from "../components/LoadingSpinner";
+import useToast from "../hooks/useToast";
 import Pagination from "./Pagination";
 
-const BlogList = ({ isAdmin, addToast }) => {
+const BlogList = ({ isAdmin }) => {
+  const { addToast } = useToast();
   const location = useLocation();
   /* 
   {
@@ -24,6 +27,8 @@ const BlogList = ({ isAdmin, addToast }) => {
   */
   const history = useHistory();
   const limit = 3;
+  const toasts = useSelector((state) => state.toast.toasts);
+  console.log("🚀 ~ file: BlogList.js:29 ~ BlogList ~ toasts:", toasts);
 
   const [posts, setPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -150,7 +155,6 @@ const BlogList = ({ isAdmin, addToast }) => {
 
 BlogList.propTypes = {
   isAdmin: propTypes.bool,
-  addToast: propTypes.func.isRequired,
 };
 
 BlogList.defaultProps = {

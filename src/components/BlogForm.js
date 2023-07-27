@@ -1,13 +1,13 @@
 import axios from "axios";
 import propTypes from "prop-types";
 import { useEffect, useState } from "react";
-import { useHistory, useParams } from "react-router-dom";
-import useToast from '../hooks/useToast';
+import { useNavigate, useParams } from "react-router";
+import useToast from "../hooks/useToast";
+import LoadingSpinner from "./LoadingSpinner";
 
 const BlogForm = ({ editing }) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const { id } = useParams();
-  const { addToast } = useToast();
 
   const [title, setTitle] = useState("");
   const [originalTitle, setOriginalTitle] = useState("");
@@ -17,6 +17,36 @@ const BlogForm = ({ editing }) => {
   const [originalPublish, setOriginalPublish] = useState(false);
   const [titleError, setTitleError] = useState(false);
   const [bodyError, setBodyError] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const { addToast } = useToast();
+
+  useEffect(() => {
+    if (editing) {
+      axios
+        .get(`http://localhost:3001/posts/${id}`)
+        .then((res) => {
+          setTitle(res.data.title);
+          setOriginalTitle(res.data.title);
+          setBody(res.data.body);
+          setOriginalBody(res.data.body);
+          setPublish(res.data.publish);
+          setOriginalPublish(res.data.publish);
+          setLoading(false);
+        })
+        .catch(() => {
+          setError("something went wrong in db");
+          addToast({
+            type: "danger",
+            text: "something went wrong in db",
+          });
+          setLoading(false);
+        });
+    } else {
+      setLoading(false);
+    }
+    // addToast dependency 추가하면 초기화 됨
+  }, [editing, id]);
 
   const isEdited = () => {
     return (
@@ -28,9 +58,75 @@ const BlogForm = ({ editing }) => {
 
   const goBack = () => {
     if (editing) {
-      history.push(`/blogs/${id}`);
+      navigate(`/blogs/${id}`);
     } else {
-      history.push("/blogs");
+      navigate("/blogs");
+    }
+  };
+
+  const validateForm = () => {
+    let validated = true;
+
+    if (title === "") {
+      setTitleError(true);
+      validated = false;
+    }
+
+    if (body === "") {
+      setBodyError(true);
+      validated = false;
+    }
+
+    return validated;
+  };
+
+  const onSubmit = () => {
+    setTitleError(false);
+    setBodyError(false);
+    if (validateForm()) {
+      if (editing) {
+        axios
+          .patch(`http://localhost:3001/posts/${id}`, {
+            title,
+            body,
+            publish,
+          })
+          .then((res) => {
+            console.log(res);
+            addToast({
+              type: "success",
+              text: "Successfully updated!",
+            });
+            navigate(`/blogs/${id}`);
+          })
+          .catch((e) => {
+            addToast({
+              type: "danger",
+              text: "We could not update blog",
+            });
+          });
+      } else {
+        axios
+          .post("http://localhost:3001/posts", {
+            title,
+            body,
+            publish,
+            createdAt: Date.now(),
+          })
+          .then(() => {
+            addToast({
+              type: "success",
+              text: "Successfully created!",
+            });
+            navigate("/admin");
+          })
+          .catch((e) => {
+            addToast({
+              type: "danger",
+              text: "We could not create blog",
+            });
+          });
+      }
     }
   };
 
@@ -38,108 +134,56 @@ const BlogForm = ({ editing }) => {
     setPublish(e.target.checked);
   };
 
-  const validateForm = () => {
-    let titleError = false;
-    let bodyError = false;
-    if (title === "") {
-      titleError = true;
-    }
-    if (body === "") {
-      bodyError = true;
-    }
-    setTitleError(titleError);
-    setBodyError(bodyError);
-    return !titleError && !bodyError;
-  };
+  if (loading) {
+    return <LoadingSpinner />;
+  }
 
-  const handleSubmit = () => {
-    if (!validateForm()) {
-      return;
-    }
-    if (editing) {
-      axios
-        .put(`http://localhost:3001/posts/${id}`, {
-          title,
-          body,
-          publish,
-        })
-        .then(() => {
-          history.push("/blogs");
-        });
-    } else {
-      axios
-        .post("http://localhost:3001/posts", {
-          title,
-          body,
-          publish,
-          createdAt: Date.now(),
-        })
-        .then((res) => {
-          const newToast = {
-            text: "Post created successfully.",
-            type: "success",
-          };
-          addToast(newToast);
-          history.push("/admin");
-        });
-    }
-  };
-
-  useEffect(() => {
-    if (editing) {
-      axios.get(`http://localhost:3001/posts/${id}`).then((response) => {
-        setTitle(response.data.title);
-        setOriginalTitle(response.data.title);
-        setBody(response.data.body);
-        setOriginalBody(response.data.body);
-        setPublish(response.data.publish);
-        setOriginalPublish(response.data.publish);
-      });
-    }
-  }, [editing, id]);
+  if (error) {
+    return <div>{error}</div>;
+  }
 
   return (
-    <>
-      <h1>{editing ? "Edit" : "Create"} a Blog Post</h1>
+    <div>
+      <h1>{editing ? "Edit" : "Create"} a blog post</h1>
       <div className="mb-3">
-        <label htmlFor="" className="form-label">
-          Title
-        </label>
+        <label className="form-label">Title</label>
         <input
-          type="text"
-          className={`form-control ${titleError && "border-danger"}`}
+          className={`form-control ${titleError ? "border-danger" : ""}`}
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={(event) => {
+            setTitle(event.target.value);
+          }}
         />
-        {titleError && <div className="text-danger">Title is isRequired.</div>}
+        {titleError && <div className="text-danger">Title is required.</div>}
       </div>
       <div className="mb-3">
-        <label htmlFor="" className="form-label">
-          Body
-        </label>
+        <label className="form-label">Body</label>
         <textarea
-          className={`form-control ${bodyError && "border-danger"}`}
-          rows="10"
+          className={`form-control ${bodyError ? "border-danger" : ""}`}
           value={body}
-          onChange={(e) => setBody(e.target.value)}
+          onChange={(event) => {
+            setBody(event.target.value);
+          }}
+          rows="10"
         />
-        {bodyError && <div className="text-danger">Body is isRequired.</div>}
+        {bodyError && <div className="text-danger">Body is required.</div>}
       </div>
       <div className="form-check mb-3">
         <input
+          id="publish"
+          className="form-check-input"
           type="checkbox"
-          className="form-check-input mb-2"
-          id="cb-publish"
-          checked={publish || false}
+          checked={publish}
           onChange={onChangePublish}
         />
-        <label htmlFor="cb-publish" className="form-check-label">
+        <label htmlFor="publish" className="form-check-label">
           Publish
         </label>
       </div>
+
       <button
         className="btn btn-primary"
-        onClick={handleSubmit}
+        onClick={onSubmit}
         disabled={editing && !isEdited()}
       >
         {editing ? "Edit" : "Post"}
@@ -147,7 +191,7 @@ const BlogForm = ({ editing }) => {
       <button className="btn btn-danger ms-2" onClick={goBack}>
         Cancel
       </button>
-    </>
+    </div>
   );
 };
 

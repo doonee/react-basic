@@ -1,9 +1,11 @@
 import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
 import LoadingSpinner from "./LoadingSpinner";
 
 const ShowPage = () => {
+  const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
   const { id } = useParams();
   const [post, setPost] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -44,11 +46,13 @@ const ShowPage = () => {
     <>
       <div className="d-flex">
         <h1 className="flex-grow-1">{post?.title}</h1>
-        <div>
-          <Link to={`/blogs/${post?.id}/edit`} className="btn btn-primary">
-            Edit
-          </Link>
-        </div>
+        {isLoggedIn && (
+          <div>
+            <Link to={`/blogs/${post?.id}/edit`} className="btn btn-primary">
+              Edit
+            </Link>
+          </div>
+        )}
       </div>
       <small className="text-muted">
         Created At : {printDate(post?.createdAt)}

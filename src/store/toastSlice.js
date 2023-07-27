@@ -12,9 +12,9 @@ const toastSlice = createSlice({
       state.toasts.push(action.payload);
     },
     removeToast: (state, action) => {
-      state.toasts = state.toasts.filter(
-        (toast) => toast.id !== action.payload
-      );
+      state.toasts = state.toasts.filter((toast) => {
+        return toast.id !== action.payload;
+      });
     },
   },
 });
